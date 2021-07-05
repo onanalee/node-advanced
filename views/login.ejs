@@ -10,50 +10,86 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
 
-    <title>Document</title>
-
-
+    <title>로그인</title>
     <script>
-        function submitContent() {
-            let contentId = new Date().getTime();
-            let title = $('#title').val();
-            let name = $('#name').val();
+
+        // if (localStorage.getItem("token")) {
+        //     getSelf(function () {
+        //         alert("이미 로그인이 되어있습니다. 상품 페이지로 이동합니다.");
+        //         window.location.replace("/goods.html");
+        //     });
+        // }
+
+        function signin() {
+            let nickname = $('#nickname').val();
             let password = $('#pw').val();
-            let content = $('#content').val();
-            console.log(contentId, title, name, password, content);
 
             $.ajax({
                 type: "POST",
-                url: `/api/posts`,
+                url: `/api/auth`,
                 data: {
-                    contentId: contentId,
-                    title: title,
-                    name: name,
+                    nickname: nickname,
                     password: password,
-                    content: content
                 },
                 success: function (response) {
-                    console.log("POST API successful");
+                    localStorage.setItem("token", response.token);
+                    window.location.replace("/allEntries");
+                },
+                error: function (error) {
+                    customAlert(error.responseJSON.errorMessage);
                 }
             })
-            window.location.href = '/allEntries';
+        }
+
+        if (localStorage.getItem("token")) {
+            getSelf(function () {
+                alert("이미 로그인이 되어있습니다. 전체 목록 조회 페이지로 이동합니다..");
+                window.location.replace("/allEntries");
+            });
+        }
+        // function getSelf(callback) {
+        //     $.ajax({
+        //         type: 'GET',
+        //         url: '/api/users/me',
+        //         headers: {
+        //             authorization: `Bearer ${localStorage.getItem('token')}`,
+        //         },
+        //         success: function (response) {
+        //             callback(response.user);
+        //         },
+        //         error: function (xhr, status, error) {
+        //             if (status == 401) {
+        //                 alert('로그인이 필요합니다.');
+        //             } else {
+        //                 localStorage.clear();
+        //                 alert('알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.');
+        //             }
+        //             window.location.href = '/';
+        //         },
+        //     });
+        // }
+
+        function customAlert(text) {
+            $("#alertText").text(text);
+            $("#alertModal").modal("show");
         }
     </script>
 </head>
 
 <body>
 
-    <div>
+    <h1>
         로그인을 하쇼
-    </div>
+    </h1>
 
 
     <div>
-        ID: <input type="text">
+        닉네임: <input id="nickname" type="text">
     </div>
     <div>
         비밀번호: <input id="pw" type="password">
     </div>
+    <button onclick="signin()">로그인</button>
     <a href="/register">회원가입 하기</a>
 </body>
 

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const { Op } = require('sequelize');
 const { USERS } = require('./models');
+const authMiddleware = require('./middlewares/auth-middleware');
 const router = express.Router();
 const port = 3000;
 
@@ -22,9 +23,7 @@ app.set('view engine', 'ejs');
 
 // 회원가입
 router.post('/register', async (req, res) => {
-    console.log('api register');
     const { nickname, password, confirmPw } = req.body;
-    console.log('req.body', req.body);
 
     if (password !== confirmPw) {
         res.status(400).send({
@@ -38,10 +37,9 @@ router.post('/register', async (req, res) => {
             [Op.or]: [{ nickname }],
         }
     });
-    console.log('existusers', existUsers);
     if (existUsers.length) {
         res.status(400).send({
-            errorMessage: '중복되는 ID 입니다. 다른 ID를 선택하세요',
+            errorMessage: '중복되는 닉네임 입니다. 다른 닉네임을 선택하세요',
         });
         return;
     }
@@ -49,6 +47,32 @@ router.post('/register', async (req, res) => {
     await USERS.create({ nickname, password });
 
     res.status(201).send({});
+})
+
+// 로그인
+router.post('/auth', async (req, res) => {
+    const { nickname, password } = req.body;
+
+    const user = await USERS.findOne({ where: { nickname, password } });
+
+    if (!user) {
+        res.status(400).send({
+            errorMessage: '닉네임이나 비밀번호가 잘못됐습니다.',
+        });
+        return;
+    }
+    const token = jwt.sign({ userId: user.userId }, 'secretPlease');
+    res.send({
+        token,
+    });
+});
+router.get('/users/me', authMiddleware, async (req, res) => {
+    // console.log('res.locals',res.locals);
+    const { user } = res.locals;
+    console.log('user', user);
+    res.send({
+        user,
+    });
 })
 
 
@@ -60,6 +84,7 @@ app.get('/login', (req, res) => {
 app.get('/register', (req, res) => {
     res.render('register.ejs');
 })
+
 
 app.get('/allEntries', (req, res) => {
     res.render('allEntries.ejs');
