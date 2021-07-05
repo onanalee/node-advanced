@@ -10,60 +10,65 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
 
-    <title>Document</title>
+    <title>회원가입</title>
 
 
     <script>
-        function submitContent() {
-            let contentId = new Date().getTime();
-            let title = $('#title').val();
-            let name = $('#name').val();
-            let password = $('#pw').val();
-            let content = $('#content').val();
-            console.log(contentId, title, name, password, content);
+        function register() {
 
+            let nickname = $('#nickname').val();
+            let password = $('#pw').val();
+            let confirmPw = $('#confirmPw').val();
+
+            console.log(nickname, password, confirmPw);
+
+            // password === confirmPw on frontend code? or backend?
+            // if (password !== confirmPw) {
+            //     window.alert('비밀번호가 확인과 일치하지 않습니다.');
+            //     return;
+            // }
             $.ajax({
                 type: "POST",
-                url: `/api/posts`,
+                url: `/api/register`,
                 data: {
-                    contentId: contentId,
-                    title: title,
-                    name: name,
+                    nickname: nickname,
                     password: password,
-                    content: content
+                    confirmPw: confirmPw,
                 },
                 success: function (response) {
                     console.log("POST API successful");
+                    // window.location.href = '/allEntries';
                 }
             })
-            window.location.href = '/allEntries';
+
         }
     </script>
 </head>
 
 <body>
 
-    <div>
-       회원가입을 하쇼~
-    </div>
+    <h1>
+        회원가입을 하쇼~
+    </h1>
     <div>
         <div>
-            ID <input id="title" type="text">
+            닉네임: <input id="nickname" type="text">
         </div>
-        
+
         <div>
             비밀번호: <input id="pw" type="password">
         </div>
         <div>
-            비밀번호 확인: <input id="pw" type="password">
+            비밀번호 확인: <input id="confirmPw" type="password">
         </div>
-        
+
         <div>
-            <button onclick="submitContent()">회원가입</button>
+            <button onclick="register()">회원가입</button>
         </div>
     </div>
-
-    <a href="/login">로그인 하기</a>
+    <div>
+        이미 계정이 있다면? <a href="/login">로그인 하기</a>
+    </div>
 </body>
 
 </html>
