@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
+
+    <title>Document</title>
+
+
+    <script>
+        
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        $.ajax({
+            type: "GET",
+            url: `/api/posts`,
+            data: {},
+            success: function (response) {
+                console.log("GET API successful");
+                for (i = 0; i < response['posts'].length; i++) {
+                    let contentId = response['posts'][i]['contentId'];
+                    let title = response['posts'][i]['title'];
+                    let name = response['posts'][i]['name'];
+                    let year = new Date(contentId).getFullYear();
+                    let month = months[new Date(contentId).getMonth()];
+                    let day = new Date(contentId).getDate();
+                    let hour = new Date(contentId).getHours();
+                    let minute = new Date(contentId).getMinutes();
+                    let date = `${year} ${month} ${day}, ${hour}:${minute}`;
+                    console.log(date);
+                    // let content = response['posts'][i]['content'];
+
+                    let template = `
+                        <tr>
+                                        <td>${contentId}</td>
+                                        <td>${title}</td>
+                                        <td>${name}</td>
+                                        <td>${date}</td>
+                                        <td><button onclick="location.href='/viewEntry?contentId=${contentId}'">글 보기</button></td>
+                                        <td><button onclick="location.href='/edit?contentId=${contentId}'">수정</button></td>
+                                    </tr>`
+
+                    $('#searchResult').append(template)
+                }
+            }
+        })
+
+    </script>
+</head>
+
+<body>
+    <div>
+        전체 조회 페이지
+    </div>
+    <div>
+        <table id="searchResult">
+            <tr>
+                <th>Content ID</th>
+                <th>Title</th>
+                <th>Name</th>
+                <th>Date</th>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+        댓글 작성 <textarea></textarea>
+    </div>
+    <div>
+        <button>댓글 수정</button>
+    </div>
+    <div>
+        <button>댓글 삭제</button>
+    </div>
+
+</body>
+
+</html>
