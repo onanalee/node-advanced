@@ -13,42 +13,6 @@
     <title>Document</title>
 
     <script>
-
-        // const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        // $.ajax({
-        //     type: "GET",
-        //     url: `/api/posts`,
-        //     data: {},
-        //     success: function (response) {
-        //         console.log("GET API successful");
-        //         for (i = 0; i < response['posts'].length; i++) {
-        //             let contentId = response['posts'][i]['contentId'];
-        //             let title = response['posts'][i]['title'];
-        //             let name = response['posts'][i]['name'];
-        //             let year = new Date(contentId).getFullYear();
-        //             let month = months[new Date(contentId).getMonth()];
-        //             let day = new Date(contentId).getDate();
-        //             let hour = new Date(contentId).getHours();
-        //             let minute = new Date(contentId).getMinutes();
-        //             let date = `${year} ${month} ${day}, ${hour}:${minute}`;
-        //             console.log(date);
-        //             // let content = response['posts'][i]['content'];
-
-        //             let template = `
-        //                 <tr>
-        //                                 <td>${contentId}</td>
-        //                                 <td>${title}</td>
-        //                                 <td>${name}</td>
-        //                                 <td>${date}</td>
-        //                                 <td><button onclick="location.href='/viewEntry?contentId=${contentId}'">글 보기</button></td>
-        //                                 <td><button onclick="location.href='/edit?contentId=${contentId}'">수정</button></td>
-        //                             </tr>`
-
-        //             $('#searchResult').append(template)
-        //         }
-        //     }
-        // })
-
         function getSelf(callback) {
             $.ajax({
                 type: 'GET',
@@ -71,6 +35,37 @@
             });
         }
 
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const postId = urlParams.get("postId");
+
+        function displayPost() {
+            $.ajax({
+                type: 'GET',
+                url: `/api/post/${postId}`,
+                data: {},
+                success: function (response) {
+                    console.log('get api successful');
+
+                    let userId = response['post']['userId'];
+                    let nickname = response['nicknames'][userId - 1]['nickname'];
+                    let title = response['post']['title'];
+                    let content = response['post']['content'];
+                    let updatedAt = response['post']['updatedAt'];
+                    let postId = response['post']['id'];
+
+
+                    $('#nickname').append('작성자: ', nickname);
+                    $('#title').append('제목: ',title);
+                    $('#updatedAt').append('수정 날짜: ',updatedAt);
+                    $('#content').append('내용: ',content);
+                }
+            })
+        };
+        displayPost();
+
+
+
     </script>
 </head>
 
@@ -79,17 +74,13 @@
         특정 글 조회 페이지
     </div>
     <div>
-        <table id="searchResult">
-            <tr>
-                <th>Content ID</th>
-                <th>Title</th>
-                <th>Name</th>
-                <th>Date</th>
-            </tr>
-        </table>
+        <div id='title'></div>
+        <div id='nickname'></div>
+        <div id='updatedAt'></div>
+        <div id='content'></div>
     </div>
 
-    <div>
+    <div id="writeComments">
         댓글 작성 <textarea></textarea>
     </div>
     <div>
@@ -101,7 +92,7 @@
     <div>
         <button>댓글 삭제</button>
     </div>
-    <div>
+    <div id="comments">
         댓글 목록
     </div>
 

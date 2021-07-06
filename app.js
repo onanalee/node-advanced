@@ -129,8 +129,26 @@ router.get('/post', async (req, res) => {
             errorMessage: '글 불러오기에 실패했습니다',
         })
     }
+});
 
-})
+router.get('/post/:postId', async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const post = await POSTS.findOne({ 
+            where: {
+                id: postId,
+            },
+             });
+        const nicknames = await USERS.findAll({});
+
+        res.status(201).send({ post, nicknames });
+    } catch (error) {
+        console.log('get posts error', error);
+        res.status(400).send({
+            errorMessage: '특정 글 불러오기에 실패했습니다',
+        })
+    }
+});
 
 
 // 각종 url
