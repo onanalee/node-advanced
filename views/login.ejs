@@ -36,7 +36,7 @@
                     window.location.replace("/allEntries");
                 },
                 error: function (error) {
-                    customAlert(error.responseJSON.errorMessage);
+                    window.alert(error.responseJSON.errorMessage);
                 }
             })
         }

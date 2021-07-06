@@ -15,18 +15,10 @@
     <script src="/api.js"></script>
     <script>
         function register() {
-
             let nickname = $('#nickname').val();
             let password = $('#pw').val();
             let confirmPw = $('#confirmPw').val();
 
-            console.log(nickname, password, confirmPw);
-
-            // password === confirmPw on frontend code? or backend?
-            // if (password !== confirmPw) {
-            //     window.alert('비밀번호가 확인과 일치하지 않습니다.');
-            //     return;
-            // }
             $.ajax({
                 type: "POST",
                 url: `/api/register`,
@@ -37,7 +29,10 @@
                 },
                 success: function (response) {
                     console.log("POST API successful");
-                    // window.location.href = '/allEntries';
+                    window.location.href = '/login';
+                },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
                 }
             })
         };
