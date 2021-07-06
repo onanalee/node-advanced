@@ -121,7 +121,8 @@ router.post('/post', authMiddleware, async (req, res) => {
 router.get('/post', async (req, res) => {
     try {
         const allPosts = await POSTS.findAll({});
-        res.status(201).send({ allPosts });
+        const nicknames = await USERS.findAll({})
+        res.status(201).send({ allPosts, nicknames });
     } catch (error) {
         console.log('get posts error', error);
         res.status(400).send({
