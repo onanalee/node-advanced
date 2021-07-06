@@ -150,19 +150,37 @@ router.get('/post/:postId', async (req, res) => {
     }
 });
 
+// COMMENTS
 router.post('/comment', authMiddleware, async (req, res) => {
     try {
         const { user } = res.locals;
         const userId = user.userId;
         const { comment, postId } = req.body;
         console.log('comment postId', comment, postId, userId);
-        await COMMENTS.create({  postId, userId, comment });
+        await COMMENTS.create({ postId, userId, comment });
         res.status(201).send({});
 
     } catch (error) {
         console.log('write comment error', error);
         res.status(400).send({
             errorMessage: '댓글 쓰기 실패했습니다',
+        })
+    }
+})
+router.get('/comment/:postId', async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const commentList = await COMMENTS.findAll({
+            where: {
+                postId: postId,
+            },
+        });
+        res.status(201).send({ commentList });
+
+    } catch (error) {
+        console.log('get comment error', error);
+        res.status(400).send({
+            errorMessage: 'failed to GET comments...',
         })
     }
 })

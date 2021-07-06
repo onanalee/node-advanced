@@ -88,7 +88,23 @@
                 }
             })
         }
+        function getComments(){
+            $.ajax({
+                type: 'GET',
+                url: `/api/comment/${postId}`,
+                data: {},
+                success: function (response) {
+                    for(i=0;i<response['commentList'].length;i++){
+                        let comment = response['commentList'][i]['comment'];
+                        let template = `<div>${comment}</div>`;
+                        $('#comments').append(template);
+                    }
 
+                    console.log('getting comments successful');
+                }
+            })
+        }
+        getComments();
 
         function signOut() {
             localStorage.clear();
@@ -120,9 +136,9 @@
 
     <button>댓글 수정</button>
     <button>댓글 삭제</button>
-
+<div>댓글 목록</div>
     <div id="comments">
-        댓글 목록
+        
     </div>
 </body>
 
