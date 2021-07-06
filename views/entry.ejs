@@ -24,13 +24,13 @@
                     callback(response.user);
                 },
                 error: function (xhr, status, error) {
-                    if (status == 401) {
+                    if (status === 401) {
                         alert('로그인이 필요합니다.');
                     } else {
                         localStorage.clear();
                         alert('알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.');
                     }
-                    window.location.href = '/';
+                    window.location.href = '/login';
                 },
             });
         }
@@ -52,26 +52,57 @@
                     let title = response['post']['title'];
                     let content = response['post']['content'];
                     let updatedAt = response['post']['updatedAt'];
-                    let postId = response['post']['id'];
 
 
                     $('#nickname').append('작성자: ', nickname);
-                    $('#title').append('제목: ',title);
-                    $('#updatedAt').append('수정 날짜: ',updatedAt);
-                    $('#content').append('내용: ',content);
+                    $('#title').append('제목: ', title);
+                    $('#updatedAt').append('수정 날짜: ', updatedAt);
+                    $('#content').append('내용: ', content);
                 }
             })
         };
         displayPost();
 
+        function writeComment() {
+            // only loged in users can write comment
+            // let user;
+            // getSelf(function (u) {
+            //     user = u;
+            // });
+            // console.log(user);
 
 
+            let comment = $('#comment').val();
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+                url: `/api/comment`,
+                data: {
+                    comment: comment,
+                    postId: postId,
+                },
+                success: function (response) {
+                    console.log('write comment successful');
+                }
+            })
+        }
+
+
+        function signOut() {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
     </script>
 </head>
 
 <body>
     <div>
         특정 글 조회 페이지
+    </div>
+    <div>
+        <button onclick="signOut()">로그아웃</button>
     </div>
     <div>
         <div id='title'></div>
@@ -81,21 +112,18 @@
     </div>
 
     <div id="writeComments">
-        댓글 작성 <textarea></textarea>
+        댓글 작성 <textarea id="comment"></textarea>
     </div>
     <div>
-        <button>작성 완료</button>
+        <button onclick="writeComment()">작성 완료</button>
     </div>
-    <div>
-        <button>댓글 수정</button>
-    </div>
-    <div>
-        <button>댓글 삭제</button>
-    </div>
+
+    <button>댓글 수정</button>
+    <button>댓글 삭제</button>
+
     <div id="comments">
         댓글 목록
     </div>
-
 </body>
 
 </html>

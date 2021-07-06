@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const app = express();
 const { Op } = require('sequelize');
-const { USERS, POSTS } = require('./models');
+const { USERS, POSTS, COMMENTS } = require('./models');
 const authMiddleware = require('./middlewares/auth-middleware');
 const router = express.Router();
 const port = 3000;
@@ -134,11 +134,11 @@ router.get('/post', async (req, res) => {
 router.get('/post/:postId', async (req, res) => {
     try {
         const { postId } = req.params;
-        const post = await POSTS.findOne({ 
+        const post = await POSTS.findOne({
             where: {
                 id: postId,
             },
-             });
+        });
         const nicknames = await USERS.findAll({});
 
         res.status(201).send({ post, nicknames });
@@ -149,6 +149,23 @@ router.get('/post/:postId', async (req, res) => {
         })
     }
 });
+
+router.post('/comment', authMiddleware, async (req, res) => {
+    try {
+        const { user } = res.locals;
+        const userId = user.userId;
+        const { comment, postId } = req.body;
+        console.log('comment postId', comment, postId, userId);
+        await COMMENTS.create({  postId, userId, comment });
+        res.status(201).send({});
+
+    } catch (error) {
+        console.log('write comment error', error);
+        res.status(400).send({
+            errorMessage: '댓글 쓰기 실패했습니다',
+        })
+    }
+})
 
 
 // 각종 url

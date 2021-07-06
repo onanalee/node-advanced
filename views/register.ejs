@@ -36,6 +36,9 @@
                 }
             })
         };
+        function noLogin() {
+            window.location.href = '/allEntries';
+        }
     </script>
 </head>
 
@@ -44,6 +47,10 @@
     <h1>
         회원가입을 하쇼~
     </h1>
+
+    <div>
+        <button onclick="noLogin()">로그인 없이 글 보기</button>
+    </div>
     <div>
         <div>
             닉네임: <input id="nickname" type="text">
