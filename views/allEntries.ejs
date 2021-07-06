@@ -101,10 +101,30 @@
                 }
             })
         }
+
+        function displayPost() {
+            $.ajax({
+                type: 'GET',
+                url: '/api/post',
+                data: {},
+                success: function (response) {
+                    console.log('get api successful');
+                    for (i = 0; i < response['allPosts'].length; i++) {
+                        let title = response['allPosts'][i]['title'];
+                        let content = response['allPosts'][i]['content'];
+                        let template = `<div>${title}</div><div>${content}</div>`;
+                        $('#displayPosts').append(template);
+                        
+                    }
+                }
+            })
+        }
+        displayPost();
     </script>
 </head>
 
 <body>
+    
     <div>
         <button onclick="signOut()">로그아웃</button>
     </div>
@@ -123,6 +143,9 @@
 
     <div>
         전체 포스트
+    </div>
+    <div id="displayPosts">
+
     </div>
 
 </body>

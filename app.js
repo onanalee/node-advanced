@@ -102,11 +102,11 @@ router.post('/post', authMiddleware, async (req, res) => {
     try {
         const { user } = res.locals;
         const userId = user.userId;
-        console.log('userId',userId);
+        console.log('userId', userId);
         const { title, content } = req.body;
         console.log('title content', title, content)
 
-        // const allPosts = await posts.findAll({});
+
         await POSTS.create({ title, content, userId });
 
         res.status(201).send({});
@@ -116,8 +116,18 @@ router.post('/post', authMiddleware, async (req, res) => {
             errorMessage: '글 쓰기에 실패했습니다',
         })
     }
+})
 
-
+router.get('/post', async (req, res) => {
+    try {
+        const allPosts = await POSTS.findAll({});
+        res.status(201).send({ allPosts });
+    } catch (error) {
+        console.log('get posts error', error);
+        res.status(400).send({
+            errorMessage: '글 불러오기에 실패했습니다',
+        })
+    }
 
 })
 
