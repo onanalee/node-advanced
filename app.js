@@ -104,19 +104,19 @@ router.post('/post', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;
         const { title, content } = req.body;
-        if(title.length===0 || title === null){
+        if (title.length === 0 || title === null) {
             res.status(400).send({
                 errorMessage: '제목이 비어있습니다. 제목을 입력하세요',
             })
             return;
         }
-        if(content.length===0 || content === null){
+        if (content.length === 0 || content === null) {
             res.status(400).send({
                 errorMessage: '내용이 비어있습니다. 내용을 입력하세요',
             })
             return;
         }
-        await POSTS.create({ title, content, userId }); 
+        await POSTS.create({ title, content, userId });
         res.status(201).send({});
     } catch (error) {
         console.log('submitPost error', error);
@@ -166,7 +166,7 @@ router.post('/comment', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;
         const { comment, postId } = req.body;
-        if(comment.length===0 || comment === null){
+        if (comment.length === 0 || comment === null) {
             res.status(400).send({
                 errorMessage: '댓글칸이 비어있습니다. 내용을 입력하세요',
             })
@@ -208,7 +208,7 @@ router.post('/editComment', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;   //현재 로그인 되어있는 유저 아이디
         const { commentId, postId, comment } = req.body;
-        if(comment.length===0 || comment === null){
+        if (comment.length === 0 || comment === null) {
             res.status(400).send({
                 errorMessage: '댓글칸이 비어있습니다. 내용을 입력하세요',
             })
@@ -285,6 +285,43 @@ app.get('/entry', (req, res) => {
     res.render('entry.ejs');
 })
 
-app.listen(port, () => {
-    console.log(`listening at http://localhost:${port}`);
-})
+
+//TESTING
+module.exports = {
+    isCorrectNickname: (value) => {
+        //닉네임은 최소 3자이어야 한다. 닉네임은 영어 알파벳이나 숫자로만 이루어져있어야한다.
+        const regex = new RegExp("^[a-zA-Z0-9]*$");
+        if (value.length < 3 || regex.test(value) === false) {
+            return false;
+        }
+        if (value.length <= 3 || regex.test(value) === true) {
+            return true;
+        }
+
+    },
+    isCorrectPassword: (value) => {
+        //비밀번호는 최소 4자 이어야한다. 비밀번호에 닉네임이 포함되어있거나 닉네임에 비밀번호가 포함되어 있으면 안된다.
+    },
+    isSamePassword: (value) => {
+        // 비밀번호와 비번확인은 정확히 일치해야한다.
+
+
+    },
+    isNicknameOverlap: (value) => {
+        // 회원가입시 이미 데이터베이스에 있는 닉네임을 입력하면 회원가입 실패해야한다.
+
+
+
+    },
+};
+
+
+
+// app.listen(port, () => {
+//     console.log(`listening at http://localhost:${port}`);
+// })
+if (process.env.NODE_ENV !== "test") {
+    app.listen(port, () => {
+        console.log(`listening at http://localhost:${port}`);
+    })
+}
