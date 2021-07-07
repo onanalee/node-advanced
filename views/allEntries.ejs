@@ -69,7 +69,14 @@
             },
             success: function (response) {
                 console.log('post api successful');
-            }
+                window.location.reload();
+            },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if(error.status===401){
+                        window.location.href = '/login';
+                    }
+                }
         })
     }
 
@@ -96,7 +103,13 @@
 
                     $('#displayPosts').append(template);
                 }
-            }
+            },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if(error.status===401){
+                        window.location.href = '/login';
+                    }
+                }
         })
     };
     displayPost();

@@ -103,13 +103,20 @@ router.post('/post', authMiddleware, async (req, res) => {
     try {
         const { user } = res.locals;
         const userId = user.userId;
-        console.log('userId', userId);
         const { title, content } = req.body;
-        console.log('title content', title, content)
-
-
-        await POSTS.create({ title, content, userId });
-
+        if(title.length===0 || title === null){
+            res.status(400).send({
+                errorMessage: '제목이 비어있습니다. 제목을 입력하세요',
+            })
+            return;
+        }
+        if(content.length===0 || content === null){
+            res.status(400).send({
+                errorMessage: '내용이 비어있습니다. 내용을 입력하세요',
+            })
+            return;
+        }
+        await POSTS.create({ title, content, userId }); 
         res.status(201).send({});
     } catch (error) {
         console.log('submitPost error', error);
@@ -121,7 +128,9 @@ router.post('/post', authMiddleware, async (req, res) => {
 
 router.get('/post', async (req, res) => {
     try {
-        const allPosts = await POSTS.findAll({});
+        const allPosts = await POSTS.findAll({
+            order: [['id', 'DESC']],
+        });
         const nicknames = await USERS.findAll({})
         res.status(201).send({ allPosts, nicknames });
     } catch (error) {
@@ -157,7 +166,12 @@ router.post('/comment', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;
         const { comment, postId } = req.body;
-        console.log('comment postId', comment, postId, userId);
+        if(comment.length===0 || comment === null){
+            res.status(400).send({
+                errorMessage: '댓글칸이 비어있습니다. 내용을 입력하세요',
+            })
+            return;
+        }
         await COMMENTS.create({ postId, userId, comment });
         res.status(201).send({});
 
@@ -173,6 +187,7 @@ router.get('/comment/:postId', async (req, res) => {
     try {
         const { postId } = req.params;
         const commentList = await COMMENTS.findAll({
+            order: [['commentId', 'DESC']],
             where: {
                 postId: postId,
             },
@@ -193,8 +208,12 @@ router.post('/editComment', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;   //현재 로그인 되어있는 유저 아이디
         const { commentId, postId, comment } = req.body;
-        console.log('comment postId', comment, postId, userId);
-        // await COMMENTS.create({ postId, userId, comment });
+        if(comment.length===0 || comment === null){
+            res.status(400).send({
+                errorMessage: '댓글칸이 비어있습니다. 내용을 입력하세요',
+            })
+            return;
+        }
 
         const findComment = await COMMENTS.findOne({
             where: {
@@ -226,7 +245,6 @@ router.delete('/deleteComment', authMiddleware, async (req, res) => {
         const { user } = res.locals;
         const userId = user.userId;   //현재 로그인 되어있는 유저 아이디
         const { commentId } = req.body;
-        console.log('commentid', commentId);
 
         const findComment = await COMMENTS.findOne({
             where: {

@@ -5,12 +5,29 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>게시물 조회!</title>
+
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <!-- jQUERY -->
     <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
 
-    <title>Document</title>
+    <!-- SOCKET.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.4.0/socket.io.js"></script>
 
     <script>
         function getSelf(callback) {
@@ -26,11 +43,12 @@
                 error: function (xhr, status, error) {
                     if (status === 401) {
                         alert('로그인이 필요합니다.');
+                        window.location.href = '/login';
                     } else {
                         localStorage.clear();
                         alert('알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.');
+                        window.location.href = '/login';
                     }
-                    window.location.href = '/login';
                 },
             });
         }
@@ -58,6 +76,12 @@
                     $('#title').append('제목: ', title);
                     $('#updatedAt').append('수정 날짜: ', updatedAt);
                     $('#content').append('내용: ', content);
+                },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if (error.status === 401) {
+                        window.location.href = '/login';
+                    }
                 }
             })
         };
@@ -77,9 +101,17 @@
                 },
                 success: function (response) {
                     console.log('write comment successful');
+                    window.location.reload();
+                },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if (error.status === 401) {
+                        window.location.href = '/login';
+                    }
                 }
             })
         }
+
         function getComments() {
             $.ajax({
                 type: 'GET',
@@ -91,7 +123,25 @@
 
                         let comment = response['commentList'][i]['comment'];
                         let template = `<div ><div id='commentId${i}'>${commentId}</div><div id='comment${i}'>${comment}</div><button id='button${i}' onclick="newComment(${i})">댓글 수정</button>
-                                        <button onclick="deleteComment(${i})">댓글 삭제</button></div>`;
+                                        <button data-toggle="modal" data-target="#myModal">댓글 삭제</button></div>
+                                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="exampleModalLabel">정말 삭제 하시겠습니까?</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick='dont()'>닫기</button>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="doDelete(${i})">댓글 삭제</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        `;
                         $('#comments').append(template);
                     }
 
@@ -110,26 +160,41 @@
         }
 
         function editComment(i) {
-            let afterEdit = $(`#afterEdit${i}`).val(); 
+            let afterEdit = $(`#afterEdit${i}`).val();
             let commentId = $(`#commentId${i}`).text();
 
-                $.ajax({
-                    type: 'POST',
-                    headers: {
-                        authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                    url: `/api/editComment`,
-                    data: {
-                        comment: afterEdit,
-                        postId: postId,
-                        commentId: commentId,
-                    },
-                    success: function (response) {
-                        console.log('EDIT comment successful');
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+                url: `/api/editComment`,
+                data: {
+                    comment: afterEdit,
+                    postId: postId,
+                    commentId: commentId,
+                },
+                success: function (response) {
+                    console.log('EDIT comment successful');
+                    window.location.reload();
+                },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if (error.status === 401) {
+                        window.location.href = '/login';
                     }
-                })
+                }
+            })
         }
 
+
+
+        function dont() {
+            return;
+        }
+        function doDelete(i) {
+            deleteComment(i);
+        }
         function deleteComment(i) {
             let commentId = $(`#commentId${i}`).text();
             $.ajax({
@@ -142,8 +207,14 @@
                     commentId: commentId,
                 },
                 success: function (response) {
-                    console.log('commentId', commentId);
                     console.log('DELETE comment successful');
+                    window.location.reload();
+                },
+                error: function (error) {
+                    window.alert(error.responseJSON.errorMessage);
+                    if (error.status === 401) {
+                        window.location.href = '/login';
+                    }
                 }
             })
         }
@@ -152,9 +223,12 @@
             window.location.href = '/login';
         }
     </script>
+
 </head>
 
 <body>
+
+
     <div>
         특정 글 조회 페이지
     </div>
