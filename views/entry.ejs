@@ -88,9 +88,9 @@
                 success: function (response) {
                     for (i = 0; i < response['commentList'].length; i++) {
                         let commentId = response['commentList'][i]['commentId'];
-                        let userId = response['commentList'][i]['userId'];
+
                         let comment = response['commentList'][i]['comment'];
-                        let template = `<div ><div id='commentId${i}'>${commentId}</div><div id='userId${i}'>${userId}</div><div id='comment${i}'>${comment}</div><button id='button${i}' onclick="newComment(${i})">댓글 수정</button>
+                        let template = `<div ><div id='commentId${i}'>${commentId}</div><div id='comment${i}'>${comment}</div><button id='button${i}' onclick="newComment(${i})">댓글 수정</button>
                                         <button onclick="deleteComment(${i})">댓글 삭제</button></div>`;
                         $('#comments').append(template);
                     }
@@ -112,7 +112,6 @@
         function editComment(i) {
             let afterEdit = $(`#afterEdit${i}`).val(); 
             let commentId = $(`#commentId${i}`).text();
-            let userId = $(`#userId${i}`).text();
 
                 $.ajax({
                     type: 'POST',
@@ -124,7 +123,6 @@
                         comment: afterEdit,
                         postId: postId,
                         commentId: commentId,
-                        userId: userId,
                     },
                     success: function (response) {
                         console.log('EDIT comment successful');
@@ -132,20 +130,20 @@
                 })
         }
 
-        function deleteComment() {
-            let comment = $('#comment').val();
+        function deleteComment(i) {
+            let commentId = $(`#commentId${i}`).text();
             $.ajax({
                 type: 'DELETE',
                 headers: {
                     authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
-                url: `/api/comment`,
+                url: `/api/deleteComment`,
                 data: {
-                    comment: comment,
-                    postId: postId,
+                    commentId: commentId,
                 },
                 success: function (response) {
-                    console.log('write comment successful');
+                    console.log('commentId', commentId);
+                    console.log('DELETE comment successful');
                 }
             })
         }

@@ -195,28 +195,58 @@ router.post('/editComment', authMiddleware, async (req, res) => {
         const { commentId, postId, comment } = req.body;
         console.log('comment postId', comment, postId, userId);
         // await COMMENTS.create({ postId, userId, comment });
-        
+
         const findComment = await COMMENTS.findOne({
             where: {
                 commentId: commentId,
             },
         })
         let commentOwner = findComment.userId;
-        if (userId!==commentOwner){
+        if (userId !== commentOwner) {
             res.status(400).send({
                 errorMessage: '해당 댓글 작성자만 수정할 수 있습니다.',
             })
             return;
         }
-        
+
         findComment.comment = comment;
         await findComment.save();
-        res.status(201).send({});
 
+        res.status(201).send({});
     } catch (error) {
         console.log('write comment error', error);
         res.status(400).send({
             errorMessage: '댓글 수정에 실패했습니다',
+        })
+    }
+})
+
+router.delete('/deleteComment', authMiddleware, async (req, res) => {
+    try {
+        const { user } = res.locals;
+        const userId = user.userId;   //현재 로그인 되어있는 유저 아이디
+        const { commentId } = req.body;
+        console.log('commentid', commentId);
+
+        const findComment = await COMMENTS.findOne({
+            where: {
+                commentId: commentId,
+            },
+        })
+        let commentOwner = findComment.userId;
+        if (userId !== commentOwner) {
+            res.status(400).send({
+                errorMessage: '해당 댓글 작성자만 삭제할 수 있습니다.',
+            })
+            return;
+        }
+        await findComment.destroy();
+        res.status(201).send({});
+
+    } catch (error) {
+        console.log('DELETE COMMENT ERROR', error);
+        res.status(400).send({
+            errorMessage: '댓글 삭제에 실패했습니다',
         })
     }
 })
