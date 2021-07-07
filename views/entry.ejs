@@ -64,14 +64,6 @@
         displayPost();
 
         function writeComment() {
-            // only loged in users can write comment
-            // let user;
-            // getSelf(function (u) {
-            //     user = u;
-            // });
-            // console.log(user);
-
-
             let comment = $('#comment').val();
             $.ajax({
                 type: 'POST',
@@ -88,15 +80,18 @@
                 }
             })
         }
-        function getComments(){
+        function getComments() {
             $.ajax({
                 type: 'GET',
                 url: `/api/comment/${postId}`,
                 data: {},
                 success: function (response) {
-                    for(i=0;i<response['commentList'].length;i++){
+                    for (i = 0; i < response['commentList'].length; i++) {
+                        let commentId = response['commentList'][i]['commentId'];
+                        let userId = response['commentList'][i]['userId'];
                         let comment = response['commentList'][i]['comment'];
-                        let template = `<div>${comment}</div>`;
+                        let template = `<div ><div id='commentId${i}'>${commentId}</div><div id='userId${i}'>${userId}</div><div id='comment${i}'>${comment}</div><button id='button${i}' onclick="newComment(${i})">댓글 수정</button>
+                                        <button onclick="deleteComment(${i})">댓글 삭제</button></div>`;
                         $('#comments').append(template);
                     }
 
@@ -106,6 +101,54 @@
         }
         getComments();
 
+        function newComment(i) {
+            let beforeEdit = $(`#comment${i}`).text();
+            console.log(beforeEdit);
+            $(`#button${i}`).remove();  //remove 수정 button
+            let template = `<textarea id='afterEdit${i}'>${beforeEdit}</textarea><button onclick='editComment(${i})'>수정완료</button>`;
+            $(`#comment${i}`).append(template);
+        }
+
+        function editComment(i) {
+            let afterEdit = $(`#afterEdit${i}`).val(); 
+            let commentId = $(`#commentId${i}`).text();
+            let userId = $(`#userId${i}`).text();
+
+                $.ajax({
+                    type: 'POST',
+                    headers: {
+                        authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                    url: `/api/editComment`,
+                    data: {
+                        comment: afterEdit,
+                        postId: postId,
+                        commentId: commentId,
+                        userId: userId,
+                    },
+                    success: function (response) {
+                        console.log('EDIT comment successful');
+                    }
+                })
+        }
+
+        function deleteComment() {
+            let comment = $('#comment').val();
+            $.ajax({
+                type: 'DELETE',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+                url: `/api/comment`,
+                data: {
+                    comment: comment,
+                    postId: postId,
+                },
+                success: function (response) {
+                    console.log('write comment successful');
+                }
+            })
+        }
         function signOut() {
             localStorage.clear();
             window.location.href = '/login';
@@ -121,6 +164,7 @@
         <button onclick="signOut()">로그아웃</button>
     </div>
     <div>
+
         <div id='title'></div>
         <div id='nickname'></div>
         <div id='updatedAt'></div>
@@ -134,11 +178,10 @@
         <button onclick="writeComment()">작성 완료</button>
     </div>
 
-    <button>댓글 수정</button>
-    <button>댓글 삭제</button>
-<div>댓글 목록</div>
+
+    <div>댓글 목록</div>
     <div id="comments">
-        
+
     </div>
 </body>
 

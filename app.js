@@ -5,6 +5,7 @@ const app = express();
 const { Op } = require('sequelize');
 const { USERS, POSTS, COMMENTS } = require('./models');
 const authMiddleware = require('./middlewares/auth-middleware');
+const { i } = require('mathjs');
 const router = express.Router();
 const port = 3000;
 
@@ -167,6 +168,7 @@ router.post('/comment', authMiddleware, async (req, res) => {
         })
     }
 })
+//DISPLAY COMMENTS
 router.get('/comment/:postId', async (req, res) => {
     try {
         const { postId } = req.params;
@@ -183,8 +185,41 @@ router.get('/comment/:postId', async (req, res) => {
             errorMessage: 'failed to GET comments...',
         })
     }
-})
+});
 
+//EDIT COMMENTS
+router.post('/editComment', authMiddleware, async (req, res) => {
+    try {
+        const { user } = res.locals;
+        const userId = user.userId;   //현재 로그인 되어있는 유저 아이디
+        const { commentId, postId, comment } = req.body;
+        console.log('comment postId', comment, postId, userId);
+        // await COMMENTS.create({ postId, userId, comment });
+        
+        const findComment = await COMMENTS.findOne({
+            where: {
+                commentId: commentId,
+            },
+        })
+        let commentOwner = findComment.userId;
+        if (userId!==commentOwner){
+            res.status(400).send({
+                errorMessage: '해당 댓글 작성자만 수정할 수 있습니다.',
+            })
+            return;
+        }
+        
+        findComment.comment = comment;
+        await findComment.save();
+        res.status(201).send({});
+
+    } catch (error) {
+        console.log('write comment error', error);
+        res.status(400).send({
+            errorMessage: '댓글 수정에 실패했습니다',
+        })
+    }
+})
 
 // 각종 url
 app.get('/login', (req, res) => {
