@@ -5,7 +5,7 @@ const app = express();
 const { Op } = require('sequelize');
 const { USERS, POSTS, COMMENTS } = require('./models');
 const authMiddleware = require('./middlewares/auth-middleware');
-const { i } = require('mathjs');
+// const { i } = require('mathjs');
 const router = express.Router();
 const port = 3000;
 
@@ -316,21 +316,21 @@ module.exports = {
             return true;
         }
     },
-    // isNicknameOverlap: async (value) => {
-    //     // 회원가입시 이미 데이터베이스에 있는 닉네임을 입력하면 회원가입 실패해야한다.
-    //     const existUsers = await USERS.findAll({
-    //         where: {
-    //             nickname: value,
-    //           }
-    //     });
-    //     if (existUsers.length){
-    //         return false;
-    //     };
-    //     if (!existUsers.length){
-    //         return true;
-    //     };
+    isNicknameOverlap: async (value) => {
+        // 회원가입시 이미 데이터베이스에 있는 닉네임을 입력하면 회원가입 실패해야한다.
+        const existUsers = await USERS.findAll({
+            where: {
+                nickname: value,
+              }
+        });
+        if (existUsers.length){
+            return false;
+        };
+        if (!existUsers.length){
+            return true;
+        };
 
-    // },
+    },
 };
 
 // app.listen(port, () => {
