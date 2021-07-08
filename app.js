@@ -294,28 +294,44 @@ module.exports = {
         if (value.length < 3 || regex.test(value) === false) {
             return false;
         }
-        if (value.length <= 3 || regex.test(value) === true) {
+        if (value.length >= 3 && regex.test(value) === true) {
             return true;
         }
-
     },
     isCorrectPassword: (value) => {
         //비밀번호는 최소 4자 이어야한다. 비밀번호에 닉네임이 포함되어있거나 닉네임에 비밀번호가 포함되어 있으면 안된다.
+        if (value.length < 4) {
+            return false;
+        }
+        if (value.length >= 4) {
+
+        }
     },
-    isSamePassword: (value) => {
+    isSamePassword: (pw1, pw2) => {
         // 비밀번호와 비번확인은 정확히 일치해야한다.
-
-
+        if (pw1 !== pw2) {
+            return false;
+        };
+        if (pw1 === pw2) {
+            return true;
+        }
     },
-    isNicknameOverlap: (value) => {
-        // 회원가입시 이미 데이터베이스에 있는 닉네임을 입력하면 회원가입 실패해야한다.
+    // isNicknameOverlap: async (value) => {
+    //     // 회원가입시 이미 데이터베이스에 있는 닉네임을 입력하면 회원가입 실패해야한다.
+    //     const existUsers = await USERS.findAll({
+    //         where: {
+    //             nickname: value,
+    //           }
+    //     });
+    //     if (existUsers.length){
+    //         return false;
+    //     };
+    //     if (!existUsers.length){
+    //         return true;
+    //     };
 
-
-
-    },
+    // },
 };
-
-
 
 // app.listen(port, () => {
 //     console.log(`listening at http://localhost:${port}`);

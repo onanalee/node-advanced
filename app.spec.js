@@ -1,6 +1,6 @@
 const supertest = require('supertest');
-const app = require('./app');
 const { isCorrectNickname, isCorrectPassword, isSamePassword, isNicknameOverlap } = require('./app.js');
+const { USERS } = require('./models');
 
 
 //닉네임 최소 3자
@@ -28,5 +28,17 @@ test('닉네임은 숫자, 영어 알파벳으로만 이루어져야한다.', ()
 test('닉네임은 숫자, 영어 알파벳으로만 이루어져야한다.', () => {
     expect(isCorrectNickname('leehyun$u')).toEqual(false);
 });
+
+
+
+// 닉네임 중복
+// test('닉네임은 중복되면 안된다.', () => {
+//     expect(isNicknameOverlap('asdf')).toEqual(false);
+// });
+
+// test('닉네임은 중복되면 안된다', () => {
+//     expect(isNicknameOverlap('zxcdddddd')).toEqual(true);
+// });
+
 
 
